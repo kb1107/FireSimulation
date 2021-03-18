@@ -55,6 +55,27 @@ void Forest::startFire()
 	currentGrid[startRow][startColumn] = 'X';
 }
 
+void Forest::initiateTimeStep()
+{
+	Tree* current = treesRemaining.getStart(); // holds first in list
+	Tree* lastTree = NULL; // holds the previous tree. Needed to ddelete from list
+
+	while (current->getNext() != NULL)
+	{
+		if (current->getState() == 1)
+		{
+			// spread fire
+
+			// burn out			
+			treesRemaining.removeFromList(lastTree);
+
+			lastTree = current; // record last Tree processed
+
+			current = current->getNext(); // update next tree to be processed
+		}
+	}
+}
+
 
 void Grid::initialiseGrid(int numOfRows, int numOfColumns)
 {
@@ -103,6 +124,11 @@ Tree* Tree::getNext()
 	return next;
 }
 
+int Tree::getState()
+{
+	return state;
+}
+
 int Tree::getRow()
 {
 	return row;
@@ -144,6 +170,39 @@ void TreeList::addTreeAtEnd(int row, int column)
 		end = current;
 	}
 }
+
+/// <summary>
+/// Takes a pointer for the Tree object one before the object to be deleted.
+/// </summary>
+/// <param name="oneBefore"></param>
+void TreeList::removeFromList(Tree* oneBefore)
+{
+	Tree* toBeDeleted;
+
+	if (oneBefore == NULL)
+	{
+		toBeDeleted = start;
+		start = toBeDeleted->getNext();
+	}
+	else
+	{
+		toBeDeleted = oneBefore->getNext();
+		oneBefore->setNext(toBeDeleted->getNext());
+	}
+
+	delete toBeDeleted;
+}
+
+Tree* TreeList::getStart()
+{
+	return start;
+}
+
+Tree* TreeList::getEnd()
+{
+	return end;
+}
+
 /// <summary>
 /// returns Tree pointer to the middlemost object in the linked list.
 /// Used to calculate the starting point of the fire

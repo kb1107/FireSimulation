@@ -23,6 +23,8 @@ public:
 
 	Tree* getNext();
 
+	int getState();
+
 	int getRow();
 
 	int getColumn();
@@ -41,6 +43,12 @@ public:
 	void addFirstTree(int height, int width);
 
 	void addTreeAtEnd(int height, int width);
+
+	void removeFromList(Tree* oneBefore);
+
+	Tree* getStart();
+
+	Tree* getEnd();
 
 	Tree* getMiddleNode();
 };
@@ -69,9 +77,9 @@ class Forest
 	int rows;
 	int columns;
 	char** currentGrid;
-	Grid gridMap; // used to display as a char array
-	// Linked list of trees
-	TreeList treesRemaining;
+	Grid gridMap;  // used to display as a char array
+	
+	TreeList treesRemaining;  // Linked list of tree objects
 
 	void initialiseForest();
 
@@ -83,6 +91,8 @@ public:
 	void displayForest();
 
 	void startFire();
+
+	void initiateTimeStep();
 };
 
 #endif
