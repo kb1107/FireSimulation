@@ -77,11 +77,11 @@ class Forest
 	int rows;
 	int columns;
 	char** currentGrid;
-	Grid gridMap;  // used to display as a char array
-	
+	Grid gridMap;  // used to display as a char array	
 	TreeList treesRemaining;  // Linked list of tree objects
 
 	void initialiseForest();
+	int catchFire(int row, int column);
 
 public:
 

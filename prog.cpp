@@ -4,20 +4,18 @@ int main(void)
 {
 	int numOfRows = 21;
 	int numOfColumns = 21;
-
-	Forest forest(numOfRows,numOfColumns);
-	forest.startFire();
-
 	char userInput = ' ';
+	Forest forest(numOfRows,numOfColumns);
+	forest.startFire();	
 
 	while (userInput != 'x')
 	{
 		// main program loop
-		forest.displayForest();
-		userInput = _getch();
 		system("cls");
-
-	}
+		forest.displayForest();
+		forest.initiateTimeStep();		
+		userInput = _getch();
+	} 	
 
 	return 0;
 }

@@ -42,7 +42,7 @@ void Forest::initialiseForest()
 
 void Forest::displayForest()
 {
-	gridMap.updateGrid(currentGrid);
+	//gridMap.updateGrid(currentGrid);
 	gridMap.displayGrid(rows, columns);
 }
 
@@ -59,23 +59,66 @@ void Forest::initiateTimeStep()
 {
 	Tree* current = treesRemaining.getStart(); // holds first in list
 	Tree* lastTree = NULL; // holds the previous tree. Needed to ddelete from list
+	char** newGrid = currentGrid; // holds any changes made
+	int chance = 0;
 
 	while (current->getNext() != NULL)
-	{
-		if (current->getState() == 1)
+	{		
+		int treeRow = current->getRow();
+		int treeColumn = current->getColumn();		
+		
+		cout << current->getRow() << " " << current->getColumn() << endl; // -- for testing 
+
+		if (current->getState() == 2) // state = living
 		{
-			// spread fire
+			// check neighbouring trees and calculate chance of catching fire
+			chance = catchFire(treeRow, treeColumn);
+			if (chance > 0)
+			{
+				current->catchFire(); // update state
+				newGrid[treeRow][treeColumn] = 'X';
+			}
 
-			// burn out			
+			lastTree = current;
+			current = current->getNext();
+		}
+		else // state = burning
+		{
+
+			// burn out
+			newGrid[treeRow][treeColumn] = '.';
+			current = current->getNext();
 			treesRemaining.removeFromList(lastTree);
-
-			lastTree = current; // record last Tree processed
-
-			current = current->getNext(); // update next tree to be processed
+			
 		}
 	}
+	
+	gridMap.updateGrid(newGrid);
+	currentGrid = newGrid; // update with any changes
 }
 
+/// <summary>
+/// Takes the array index's of a tree.
+/// checks for neighbouring burning trees and ransomises the chance of it catching fire
+/// </summary>
+/// <param name="row"></param>
+/// <param name="column"></param>
+/// <returns></returns>
+int Forest::catchFire(int row, int column)
+{
+	int chance = 0;
+
+	if (currentGrid[row + 1][column] == 'X')
+		chance++;
+	if (currentGrid[row - 1][column] == 'X')
+		chance++;
+	if (currentGrid[row][column + 1] == 'X')
+		chance++;
+	if (currentGrid[row][column - 1] == 'X')
+		chance++;
+
+	return chance;
+}
 
 void Grid::initialiseGrid(int numOfRows, int numOfColumns)
 {
