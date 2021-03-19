@@ -6,15 +6,15 @@ int main(void)
 	int numOfColumns = 21;
 	char userInput = ' ';
 	Forest forest(numOfRows,numOfColumns);
-	forest.startFire();	
+	forest.startFire();
 
-	while (userInput != 'x')
+	while (userInput != 'q')
 	{
 		// main program loop
 		system("cls");
-		forest.displayForest();
-		forest.initiateTimeStep();		
+		forest.displayForest(); 
 		userInput = _getch();
+		forest.initiateTimeStep();		
 	} 	
 
 	return 0;

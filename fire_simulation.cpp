@@ -12,11 +12,11 @@ Forest::Forest(int numOfRows, int numOfColumns)
 
 void Forest::initialiseForest()
 {
-	currentGrid = new char* [rows];
+	char** map = new char* [rows];
 
 	for (int i = 0; i < rows; i++)
 	{
-		currentGrid[i] = new char[columns];
+		map[i] = new char[columns];
 	}
 
 	for (int i = 0; i < rows; i++)
@@ -25,76 +25,92 @@ void Forest::initialiseForest()
 		{
 			if (i == 0 || j == 0 || i == rows - 1 || j == columns - 1)
 			{
-				currentGrid[i][j] = '.';
+				// set perimeter boundary layer
+				map[i][j] = '.';
 			}
 			else
 			{
-				currentGrid[i][j] = '&';
+				map[i][j] = '&';
 				treesRemaining.addTreeAtEnd(i, j); //create tree object and add to linked list
 			}
 		}
 	}
 
-	gridMap.initialiseGrid(rows, columns);
-	gridMap.updateGrid(currentGrid);
+	grid = new Grid(rows, columns, map);
 }
 
 
 void Forest::displayForest()
 {
-	//gridMap.updateGrid(currentGrid);
-	gridMap.displayGrid(rows, columns);
+	Tree* current = treesRemaining.getStart();
+
+	while (current != NULL)
+	{
+		if (current->getState() == 1)
+		{
+			grid->updateGrid(current->getRow(), current->getColumn(), 'X');
+		}
+		else if (current->getState() == 0)
+		{
+			grid->updateGrid(current->getRow(), current->getColumn(), '.');
+		}
+
+		current = current->getNext();
+	}
+
+	grid->displayGrid();
 }
 
 void Forest::startFire()
 {
 	Tree* middleTree = treesRemaining.getMiddleNode();
-	middleTree->catchFire();
-	int startRow = middleTree->getRow();
-	int startColumn = middleTree->getColumn();
-	currentGrid[startRow][startColumn] = 'X';
+	middleTree->setState(1);
+	//int startRow = middleTree->getRow();
+	//int startColumn = middleTree->getColumn();
+	//currentGrid[startRow][startColumn] = 'X';
 }
 
 void Forest::initiateTimeStep()
 {
 	Tree* current = treesRemaining.getStart(); // holds first in list
-	Tree* lastTree = NULL; // holds the previous tree. Needed to ddelete from list
-	char** newGrid = currentGrid; // holds any changes made
-	int chance = 0;
+	Tree* previousTree = NULL; // holds the previous tree. Needed to delete from list	
 
-	while (current->getNext() != NULL)
+	while (current != NULL)
 	{		
 		int treeRow = current->getRow();
 		int treeColumn = current->getColumn();		
-		
-		cout << current->getRow() << " " << current->getColumn() << endl; // -- for testing 
+		int state = current->getState();
+		int chance = 0; // used to calculate if a tree catches fire
 
-		if (current->getState() == 2) // state = living
-		{
+		//cout << current->getRow() << " " << current->getColumn() << endl; // -- for testing 
+
+		if (state == 2) // state = living
+		{		
 			// check neighbouring trees and calculate chance of catching fire
-			chance = catchFire(treeRow, treeColumn);
-			if (chance > 0)
+			if (spreadFire(treeRow, treeColumn) > 0)
 			{
-				current->catchFire(); // update state
-				newGrid[treeRow][treeColumn] = 'X';
+				//gridMap->updateGrid(treeRow, treeColumn, 'X');
+				current->setState(1);
 			}
 
-			lastTree = current;
+			previousTree = current;
 			current = current->getNext();
-		}
-		else // state = burning
-		{
-
-			// burn out
-			newGrid[treeRow][treeColumn] = '.';
-			current = current->getNext();
-			treesRemaining.removeFromList(lastTree);
 			
 		}
-	}
-	
-	gridMap.updateGrid(newGrid);
-	currentGrid = newGrid; // update with any changes
+		else if (state == 1)// state = burning
+		{
+			current->setState(0);
+
+			previousTree = current;
+			current = current->getNext();
+		}
+		else // state = burnt out
+		{
+			//  delete Tree object
+			current = current->getNext();
+			treesRemaining.removeFromList(previousTree);
+		}
+	}	
 }
 
 /// <summary>
@@ -104,55 +120,62 @@ void Forest::initiateTimeStep()
 /// <param name="row"></param>
 /// <param name="column"></param>
 /// <returns></returns>
-int Forest::catchFire(int row, int column)
+int Forest::spreadFire(int row, int column)
 {
 	int chance = 0;
+	char neighbourN = grid->getSymbol(row - 1, column);
+	char neighbourS = grid->getSymbol(row + 1, column);
+	char neighbourE = grid->getSymbol(row, column + 1);
+	char neighbourW = grid->getSymbol(row, column - 1);
 
-	if (currentGrid[row + 1][column] == 'X')
+
+	if (neighbourN == 'X' || neighbourE == 'X' || neighbourS == 'X' || neighbourW == 'X')
+	{
 		chance++;
-	if (currentGrid[row - 1][column] == 'X')
-		chance++;
-	if (currentGrid[row][column + 1] == 'X')
-		chance++;
-	if (currentGrid[row][column - 1] == 'X')
-		chance++;
+	}
 
 	return chance;
 }
 
-void Grid::initialiseGrid(int numOfRows, int numOfColumns)
+Grid::Grid(int numOfRows, int numOfColumns, char** map)
 {
 	rows = numOfRows;
 	columns = numOfColumns;
-}
+	forestMap = map;
+}	
 
-void Grid::updateGrid(char** newGrid)
+void Grid::updateGrid(int row, int column, char symbol)
 {
-	forestGrid = newGrid;
+	forestMap[row][column] = symbol;
 }
 
-void Grid::displayGrid(int rows, int columns)
+char Grid::getSymbol(int row, int col)
+{
+	return forestMap[row][col];
+}
+
+void Grid::displayGrid()
 {
 	for (int i = 0; i < rows; i++)
 	{
 		for (int j = 0; j < columns; j++)
 		{
-			cout << forestGrid[i][j] << ' ';
+			cout << forestMap[i][j] << ' ';
 
-			if (j == 20)
+			if (j == columns - 1)
 			{
 				cout << endl;
 			}
 		}
 	}
 
-	cout << "\n\nPress X to quit or any other key to continue...";
+	cout << "\n\nPress Q to quit or any other key to continue...\n\n";
 }
 
 Tree::Tree(int rowNum, int colNum)
 {
 	next = NULL;
-	state = 2; // states of tree: 2=living, 1=burning
+	state = 2; // states of tree: 2=living, 1=burning, 0=burnt out (to be deleted)
 	row = rowNum;
 	column = colNum;
 }
@@ -182,9 +205,9 @@ int Tree::getColumn()
 	return column;
 }
 
-void Tree::catchFire()
+void Tree::setState(int state)
 {
-	state = 1; // state 1 = burning
+	this->state = state;
 }
 
 TreeList::TreeList()

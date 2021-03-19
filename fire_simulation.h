@@ -29,7 +29,7 @@ public:
 
 	int getColumn();
 
-	void catchFire();
+	void setState(int state);
 };
 
 class TreeList
@@ -58,17 +58,17 @@ class Grid
 	int rows;
 	int columns;
 	// holds the current state of the forest grid
-	char** forestGrid; 	// map of forest using chars as keys - |'.' = empty| '&' = tree| 'X' = burning tree
-	//Forest* myForest;
-	void initialiseGrid();
+	char** forestMap; 	// map of forest using chars as keys - |'.' = empty| '&' = tree| 'X' = burning tree
 
 public:
 
-	void initialiseGrid(int numOfRows, int numOfColumns);
+	Grid(int numOfRows, int numOfColumns, char** forestArray);
 
-	void displayGrid(int rows, int columns);
+	void displayGrid();
 
-	void updateGrid(char** newGrid);
+	void updateGrid(int row, int column, char symbol);
+
+	char getSymbol(int row, int col);
 };
 
 class Forest
@@ -76,12 +76,11 @@ class Forest
 	// number of cells in forest
 	int rows;
 	int columns;
-	char** currentGrid;
-	Grid gridMap;  // used to display as a char array	
+	Grid* grid;  // used to display as a char array	
 	TreeList treesRemaining;  // Linked list of tree objects
 
 	void initialiseForest();
-	int catchFire(int row, int column);
+	int spreadFire(int row, int column);
 
 public:
 
