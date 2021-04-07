@@ -1,0 +1,9 @@
+TODO:
+	Enhancements (optional)
+	ground moisture, wind speed/ direction
+
+	Random class (optional)
+	improve on rand method currently used
+
+	Random initial grid (optional)
+	randomise starting grid forest density, burning tree(s) etc. 
