@@ -123,6 +123,7 @@ void Forest::initiateTimeStep()
 int Forest::spreadFire(int row, int column)
 {
 	int chance = 0;
+	int random = rand();  //32767
 	char neighbourN = grid->getSymbol(row - 1, column);
 	char neighbourS = grid->getSymbol(row + 1, column);
 	char neighbourE = grid->getSymbol(row, column + 1);
@@ -131,7 +132,7 @@ int Forest::spreadFire(int row, int column)
 
 	if (neighbourN == 'X' || neighbourE == 'X' || neighbourS == 'X' || neighbourW == 'X')
 	{
-		chance++;
+		chance = random % 2;  // modulus 2 means a 50% / 50% chance of 0 / 1
 	}
 
 	return chance;

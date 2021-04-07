@@ -7,7 +7,7 @@ int main(void)
 	char userInput = ' ';
 	Forest forest(numOfRows,numOfColumns);
 	forest.startFire();
-
+	
 	while (userInput != 'q')
 	{
 		// main program loop
