@@ -80,7 +80,7 @@ class Forest
 	TreeList treesRemaining;  // Linked list of tree objects
 
 	void initialiseForest();
-	int spreadFire(int row, int column);
+	bool spreadFire(int row, int column);
 
 public:
 

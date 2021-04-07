@@ -65,9 +65,6 @@ void Forest::startFire()
 {
 	Tree* middleTree = treesRemaining.getMiddleNode();
 	middleTree->setState(1);
-	//int startRow = middleTree->getRow();
-	//int startColumn = middleTree->getColumn();
-	//currentGrid[startRow][startColumn] = 'X';
 }
 
 void Forest::initiateTimeStep()
@@ -80,14 +77,11 @@ void Forest::initiateTimeStep()
 		int treeRow = current->getRow();
 		int treeColumn = current->getColumn();		
 		int state = current->getState();
-		int chance = 0; // used to calculate if a tree catches fire
-
-		//cout << current->getRow() << " " << current->getColumn() << endl; // -- for testing 
 
 		if (state == 2) // state = living
 		{		
 			// check neighbouring trees and calculate chance of catching fire
-			if (spreadFire(treeRow, treeColumn) > 0)
+			if (spreadFire(treeRow, treeColumn))
 			{
 				//gridMap->updateGrid(treeRow, treeColumn, 'X');
 				current->setState(1);
@@ -97,7 +91,7 @@ void Forest::initiateTimeStep()
 			current = current->getNext();
 			
 		}
-		else if (state == 1)// state = burning
+		else if (state == 1)  // state = burning
 		{
 			current->setState(0);
 
@@ -120,22 +114,22 @@ void Forest::initiateTimeStep()
 /// <param name="row"></param>
 /// <param name="column"></param>
 /// <returns></returns>
-int Forest::spreadFire(int row, int column)
+bool Forest::spreadFire(int row, int column)
 {
-	int chance = 0;
-	int random = rand();  //32767
-	char neighbourN = grid->getSymbol(row - 1, column);
-	char neighbourS = grid->getSymbol(row + 1, column);
-	char neighbourE = grid->getSymbol(row, column + 1);
-	char neighbourW = grid->getSymbol(row, column - 1);
+	int random = rand();  // 0 - 32767
+	int chance = RAND_MAX;  // used as upper limit to randomise the spread of fire 
+	char neighbours[] = { grid->getSymbol(row - 1, column), grid->getSymbol(row + 1, column), grid->getSymbol(row, column + 1), grid->getSymbol(row, column - 1) };
 
-
-	if (neighbourN == 'X' || neighbourE == 'X' || neighbourS == 'X' || neighbourW == 'X')
+	for (int i = 0; i < sizeof(neighbours) / sizeof(neighbours[0]); i++)
 	{
-		chance = random % 2;  // modulus 2 means a 50% / 50% chance of 0 / 1
+		if (neighbours[i] == 'X')
+		{
+			chance /= 2;  // increase likelihood of tree catching fire by 50% proportionally to the number of burning neighbours
+						 //  burning neighbours:  1 = 50%, 2 = 75% etc. 		
+		}
 	}
 
-	return chance;
+	return random > chance; 
 }
 
 Grid::Grid(int numOfRows, int numOfColumns, char** map)
