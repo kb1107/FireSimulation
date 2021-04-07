@@ -1,4 +1,6 @@
 TODO:
+	Detect when no more burning objects and end program
+
 	Enhancements (optional)
 	ground moisture, wind speed/ direction
 
