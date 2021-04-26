@@ -39,7 +39,9 @@ void Forest::initialiseForest()
 	grid = new Grid(rows, columns, map);
 }
 
-
+/// <summary>
+/// updates the grid with the current state of the forest and displays to console
+/// </summary>
 void Forest::displayForest()
 {
 	Tree* current = treesRemaining.getStart();
@@ -61,12 +63,18 @@ void Forest::displayForest()
 	grid->displayGrid();
 }
 
+/// <summary>
+/// locates the middle most tree and changes state to burning./
+/// // </summary>
 void Forest::startFire()
 {
 	Tree* middleTree = treesRemaining.getMiddleNode();
 	middleTree->setState(1);
 }
 
+/// <summary>
+/// traverses the linked list of tree nodes, checks state and calculates the spread of the fire
+/// </summary>
 void Forest::initiateTimeStep()
 {
 	Tree* current = treesRemaining.getStart(); // holds first in list
@@ -81,6 +89,7 @@ void Forest::initiateTimeStep()
 		if (state == 2) // state = living
 		{		
 			// check neighbouring trees and calculate chance of catching fire
+
 			if (spreadFire(treeRow, treeColumn))
 			{
 				//gridMap->updateGrid(treeRow, treeColumn, 'X');
@@ -149,6 +158,9 @@ char Grid::getSymbol(int row, int col)
 	return forestMap[row][col];
 }
 
+/// <summary>
+/// print the grid and user instructions to the console
+/// </summary>
 void Grid::displayGrid()
 {
 	for (int i = 0; i < rows; i++)
